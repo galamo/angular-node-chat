@@ -317,9 +317,10 @@ Socket IO
 <div>
   Room
   <button (click)="sendMessage()"> Send </button>
+  <h2> Sending message to {{ sendToUser?.clientName }} </h2>
   <input [(ngModel)]="message" />
   <span *ngIf="clients?.length">
-    <select>
+    <select (change)="onChangeSendTo($event.target.value)">
       <option *ngFor="let user of clients" [value]="user.id"> {{user.clientName}} </option>
     </select>
   </span>
