@@ -1,6 +1,7 @@
 import { i18nMetaToJSDoc } from '@angular/compiler/src/render3/view/i18n/meta';
 import { Component, OnInit } from '@angular/core';
-import { Observable, Subscription } from "rxjs"
+import { Observable, fromEvent, timer, Subscription } from "rxjs"
+import { filter, map } from "rxjs/operators"
 // import { io } from "socket.io-client"
 import * as socket from "socket.io-client";
 
@@ -29,7 +30,7 @@ export class AppComponent implements OnInit {
   public mySubscription: Subscription;
   public subscriberValue: number = 0;
   public isSubscriberDivisable: boolean;
-
+  public globalNum: number;
 
   constructor() {
     this.socketClient = null;
@@ -39,6 +40,7 @@ export class AppComponent implements OnInit {
     this.showHelloMessage = false;
     this.clients = [];
     this.sendToUser = null
+    this.globalNum = 0;
 
   }
   sendMessage() {
@@ -110,19 +112,39 @@ export class AppComponent implements OnInit {
     console.log(`Subscriber 1 is not subscribed anymore`)
   }
   ngOnInit() {
+
+    const mouseMove$ = fromEvent<MouseEvent>(document, "mousemove")
+    const mouseMoveMap$ = mouseMove$.pipe(map((event) => {
+      const { screenX, screenY } = event
+      return { screenX, screenY };
+    })).pipe(filter(event => event.screenX > 2500))
+    mouseMoveMap$.subscribe({
+      next: ({ screenX, screenY }) => {
+        console.log(screenX)
+      }
+    })
+
+    mouseMoveMap$.subscribe({
+      next: ({ screenX, screenY }) => {
+        console.log(screenY)
+      }
+    })
+
+
+    // mouseMove$.subscribe({ next: (e) => { console.log(e) } })
+
     this.isDivisibaleByThreeObservable = Observable.create((observer) => {
-      let number = 0;
       setInterval(() => {
-        if (number % 3 === 0) {
-          observer.next({ isDivisibaleByThree: true, number })
+        if (this.globalNum % 3 === 0) {
+          observer.next({ isDivisibaleByThree: true, number: this.globalNum })
         } else {
-          observer.next({ isDivisibaleByThree: false, number })
+          observer.next({ isDivisibaleByThree: false, number: this.globalNum })
         }
-        
-        // if (number === 20) {
-        //   throw new Error("Error in subscription")
-        // }
-        number++;
+
+        if (this.globalNum === 55) {
+          observer.complete("completed")
+        }
+        this.globalNum++;
       }, 500)
     })
   }
