@@ -326,6 +326,14 @@ Socket IO
   </span>
   <h1 *ngIf="showHelloMessage"> Welcome to Our Chat! </h1>
   <h2 *ngFor="let singleMessage of content">{{singleMessage}}</h2>
+
+  <br>
+  <h1>
+    Subscribe here!!
+  </h1>
+  <button (click)="subscribe()"> Subscribe </button>
+  <button (click)="unsubscribe()"> Un Subscribe </button>
+  <h2> {{subscriberValue}} => {{isSubscriberDivisable}} </h2>
 </div>
 
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->

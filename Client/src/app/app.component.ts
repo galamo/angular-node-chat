@@ -1,5 +1,6 @@
 import { i18nMetaToJSDoc } from '@angular/compiler/src/render3/view/i18n/meta';
 import { Component, OnInit } from '@angular/core';
+import { Observable, Subscription } from "rxjs"
 // import { io } from "socket.io-client"
 import * as socket from "socket.io-client";
 
@@ -23,6 +24,13 @@ export class AppComponent implements OnInit {
   public showHelloMessage: boolean
   public clients: Array<ChatClient>
   public sendToUser: ChatClient;
+
+  public isDivisibaleByThreeObservable: Observable<{ isDivisibaleByThree: false, number: 0 }>;
+  public mySubscription: Subscription;
+  public subscriberValue: number = 0;
+  public isSubscriberDivisable: boolean;
+
+
   constructor() {
     this.socketClient = null;
     this.message = "";
@@ -78,8 +86,45 @@ export class AppComponent implements OnInit {
 
     }
   }
+  subscribe() {
+    this.mySubscription = this.isDivisibaleByThreeObservable.subscribe({
+      next: (value) => {
+        const { number, isDivisibaleByThree } = value
+        const message = isDivisibaleByThree ? "is divisbale by three" : "is NOT divisbale by three";
+        console.log(`Subscriber 1 Number: ${number} ${message}`)
+        // if (isDivisibaleByThree) {
+        this.subscriberValue = number;
+        this.isSubscriberDivisable = isDivisibaleByThree
+        // }
+      },
+      complete: () => {
+        console.log("observer completed")
+      },
+      error: (value) => {
+        console.log(value)
+      }
+    })
+  }
+  unsubscribe() {
+    this.mySubscription.unsubscribe();
+    console.log(`Subscriber 1 is not subscribed anymore`)
+  }
   ngOnInit() {
-
+    this.isDivisibaleByThreeObservable = Observable.create((observer) => {
+      let number = 0;
+      setInterval(() => {
+        if (number % 3 === 0) {
+          observer.next({ isDivisibaleByThree: true, number })
+        } else {
+          observer.next({ isDivisibaleByThree: false, number })
+        }
+        
+        // if (number === 20) {
+        //   throw new Error("Error in subscription")
+        // }
+        number++;
+      }, 500)
+    })
   }
 
 }
